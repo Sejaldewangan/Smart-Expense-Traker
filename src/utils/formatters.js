@@ -1,7 +1,16 @@
-export const formatCurrency = (amount) => {
+export const formatCurrency = (amount, symbol = '$') => {
+    const currencyMap = {
+        '$': 'USD',
+        '€': 'EUR',
+        '£': 'GBP',
+        '₹': 'INR'
+    };
+
+    const currencyCode = currencyMap[symbol] || 'USD';
+
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD',
+        currency: currencyCode,
     }).format(amount);
 };
 

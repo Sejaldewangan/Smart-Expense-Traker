@@ -2,7 +2,8 @@ import React, { createContext, useReducer, useEffect } from 'react';
 
 // Initial state
 const initialState = {
-    transactions: JSON.parse(localStorage.getItem('transactions')) || []
+    transactions: JSON.parse(localStorage.getItem('transactions')) || [],
+    currency: localStorage.getItem('currency') || '$'
 };
 
 // Create context
@@ -16,10 +17,20 @@ const AppReducer = (state, action) => {
                 ...state,
                 transactions: state.transactions.filter(transaction => transaction.id !== action.payload)
             };
+        case 'DELETE_MULTIPLE_TRANSACTIONS':
+            return {
+                ...state,
+                transactions: state.transactions.filter(transaction => !action.payload.includes(transaction.id))
+            };
         case 'ADD_TRANSACTION':
             return {
                 ...state,
                 transactions: [action.payload, ...state.transactions]
+            };
+        case 'SET_CURRENCY':
+            return {
+                ...state,
+                currency: action.payload
             };
         default:
             return state;
@@ -35,10 +46,21 @@ export const TransactionProvider = ({ children }) => {
         localStorage.setItem('transactions', JSON.stringify(state.transactions));
     }, [state.transactions]);
 
+    useEffect(() => {
+        localStorage.setItem('currency', state.currency);
+    }, [state.currency]);
+
     function deleteTransaction(id) {
         dispatch({
             type: 'DELETE_TRANSACTION',
             payload: id
+        });
+    }
+
+    function deleteMultipleTransactions(ids) {
+        dispatch({
+            type: 'DELETE_MULTIPLE_TRANSACTIONS',
+            payload: ids
         });
     }
 
@@ -49,11 +71,21 @@ export const TransactionProvider = ({ children }) => {
         });
     }
 
+    function setCurrency(currency) {
+        dispatch({
+            type: 'SET_CURRENCY',
+            payload: currency
+        });
+    }
+
     return (
         <TransactionContext.Provider value={{
             transactions: state.transactions,
+            currency: state.currency,
             deleteTransaction,
-            addTransaction
+            deleteMultipleTransactions,
+            addTransaction,
+            setCurrency
         }}>
             {children}
         </TransactionContext.Provider>

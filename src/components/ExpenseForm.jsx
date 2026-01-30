@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { TransactionContext } from '../context/TransactionContext';
 import { Card, Button, Input, Select } from './UIComponents';
 import { PlusCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const ExpenseForm = () => {
     const [text, setText] = useState('');
@@ -14,7 +15,10 @@ const ExpenseForm = () => {
     const onSubmit = (e) => {
         e.preventDefault();
 
-        if (!text || !amount) return;
+        if (!text || !amount) {
+            toast.error('Please fill in all fields');
+            return;
+        }
 
         const newTransaction = {
             id: Math.floor(Math.random() * 100000000),
@@ -26,6 +30,7 @@ const ExpenseForm = () => {
         };
 
         addTransaction(newTransaction);
+        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully!`);
         setText('');
         setAmount('');
     };

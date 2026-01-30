@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { LayoutDashboard, Wallet, Settings, LogOut } from 'lucide-react';
+import { TransactionContext } from '../context/TransactionContext';
 
 const Layout = ({ children }) => {
+    const { currency, setCurrency } = useContext(TransactionContext);
+
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Top Navigation */}
@@ -30,19 +33,30 @@ const Layout = ({ children }) => {
                         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>SmartTracker</h1>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        {/* Placeholder for future auth features */}
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            background: '#334155',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer'
-                        }}>
-                            <Settings size={18} color="#94a3b8" />
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <div style={{ position: 'relative' }}>
+                            <select
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value)}
+                                style={{
+                                    appearance: 'none',
+                                    background: 'var(--glass-bg)',
+                                    border: '1px solid var(--glass-border)',
+                                    color: 'var(--text-secondary)',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    paddingRight: '1.5rem',
+                                    outline: 'none'
+                                }}
+                            >
+                                <option value="$">USD ($)</option>
+                                <option value="€">EUR (€)</option>
+                                <option value="£">GBP (£)</option>
+                                <option value="₹">INR (₹)</option>
+                            </select>
+                            <Settings size={14} style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                         </div>
                     </div>
                 </div>

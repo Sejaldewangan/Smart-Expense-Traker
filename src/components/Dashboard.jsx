@@ -8,7 +8,7 @@ import { Card } from './UIComponents';
 import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react';
 
 const Dashboard = () => {
-    const { transactions } = useContext(TransactionContext);
+    const { transactions, currency } = useContext(TransactionContext);
 
     const amounts = transactions.map(transaction => transaction.type === 'income' ? +transaction.amount : -transaction.amount);
     const total = amounts.reduce((acc, item) => (acc += item), 0);
@@ -38,7 +38,7 @@ const Dashboard = () => {
                         <span style={{ fontWeight: 500 }}>Total Balance</span>
                     </div>
                     <h1 style={{ fontSize: '2.5rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white', background: 'none', WebkitTextFillColor: 'initial' }}>
-                        {formatCurrency(total)}
+                        {formatCurrency(total, currency)}
                     </h1>
 
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
@@ -47,14 +47,14 @@ const Dashboard = () => {
                                 <ArrowUpCircle size={16} />
                                 <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Income</span>
                             </div>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(income)}</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(income, currency)}</span>
                         </div>
                         <div style={{ flex: 1, background: 'rgba(0,0,0,0.15)', padding: '1rem', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                                 <ArrowDownCircle size={16} />
                                 <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Expenses</span>
                             </div>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(expense)}</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(expense, currency)}</span>
                         </div>
                     </div>
                 </div>

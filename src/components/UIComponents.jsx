@@ -30,7 +30,7 @@ export const Select = ({ label, options, ...props }) => {
     return (
         <div style={{ marginBottom: '1rem' }}>
             {label && <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{label}</label>}
-            <select className="glass-input" {...props} style={{ appearance: 'none', cursor: 'pointer' }}>
+            <select className="glass-input transition-all" {...props}>
                 {options.map(opt => (
                     <option key={opt.value} value={opt.value} style={{ background: 'var(--bg-card)', color: 'white' }}>
                         {opt.label}
