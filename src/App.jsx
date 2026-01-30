@@ -4,6 +4,10 @@ import Dashboard from './components/Dashboard';
 import { TransactionProvider } from './context/TransactionContext';
 import { Toaster } from 'sonner';
 import LoadingScreen from './components/LoadingScreen';
+import AnalyticsView from './components/AnalyticsView';
+import Settings from './components/Settings';
+import TransactionList from './components/TransactionList';
+import Help from './components/Help';
 
 function App() {
     const [isLoading, setIsLoading] = React.useState(true);
@@ -26,19 +30,19 @@ function App() {
             case 'transactions':
                 return (
                     <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: '1.5rem' }}>Transaction History</h2>
-                        <Dashboard /> {/* For now, we reuse parts or show the same, but could be filter-focused */}
+                        <div style={{ marginBottom: '2rem' }}>
+                            <h2 style={{ marginBottom: '0.5rem' }}>Transaction History</h2>
+                            <p style={{ color: 'var(--text-secondary)', margin: 0 }}>View and manage all your financial records</p>
+                        </div>
+                        <TransactionList />
                     </div>
                 );
             case 'analytics':
-                return (
-                    <div className="animate-fade-in">
-                        <h2 style={{ marginBottom: '1.5rem' }}>Analytics Overview</h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
-                            <Dashboard /> {/* Just for visual density demo */}
-                        </div>
-                    </div>
-                );
+                return <AnalyticsView />;
+            case 'settings':
+                return <Settings />;
+            case 'help':
+                return <Help />;
             default:
                 return (
                     <div className="animate-fade-in" style={{ textAlign: 'center', padding: '5rem' }}>

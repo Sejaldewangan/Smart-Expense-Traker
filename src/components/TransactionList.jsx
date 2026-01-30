@@ -6,7 +6,7 @@ import {
     Trash2, TrendingUp, TrendingDown, Search, Filter,
     CheckSquare, Square, XCircle, Utensils, Car, Zap,
     Play, ShoppingBag, HeartPulse, Package, Wallet,
-    Briefcase, MoreHorizontal, Inbox, Edit2, X
+    Briefcase, MoreHorizontal, Inbox, Edit2, X, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,6 +38,33 @@ const TransactionList = () => {
     const [editAmount, setEditAmount] = useState('');
     const [editCategory, setEditCategory] = useState('');
     const [editType, setEditType] = useState('expense');
+
+    const exportToCSV = () => {
+        if (transactions.length === 0) return;
+
+        const headers = ['Date', 'Description', 'Amount', 'Type', 'Category'];
+        const csvContent = [
+            headers.join(','),
+            ...transactions.map(t => [
+                new Date(t.date).toLocaleDateString(),
+                `"${t.text.replace(/"/g, '""')}"`,
+                t.amount,
+                t.type,
+                t.category
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Transactions exported to CSV');
+    };
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => {
@@ -210,26 +237,37 @@ const TransactionList = () => {
                                 Delete ({selectedIds.length})
                             </Button>
                         )}
-                        <div style={{ display: 'flex', background: 'var(--glass-bg)', borderRadius: '8px', padding: '2px' }}>
-                            {['all', 'income', 'expense'].map(type => (
-                                <button
-                                    key={type}
-                                    onClick={() => setFilterType(type)}
-                                    style={{
-                                        padding: '4px 12px',
-                                        borderRadius: '6px',
-                                        border: 'none',
-                                        background: filterType === type ? 'var(--primary)' : 'transparent',
-                                        color: filterType === type ? 'white' : 'var(--text-secondary)',
-                                        fontSize: '0.8rem',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s',
-                                        textTransform: 'capitalize'
-                                    }}
-                                >
-                                    {type}
-                                </button>
-                            ))}
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <Button
+                                variant="ghost"
+                                onClick={exportToCSV}
+                                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                title="Export to CSV"
+                            >
+                                <Download size={14} />
+                                <span>Export</span>
+                            </Button>
+                            <div style={{ display: 'flex', background: 'var(--glass-bg)', borderRadius: '8px', padding: '2px' }}>
+                                {['all', 'income', 'expense'].map(type => (
+                                    <button
+                                        key={type}
+                                        onClick={() => setFilterType(type)}
+                                        style={{
+                                            padding: '4px 12px',
+                                            borderRadius: '6px',
+                                            border: 'none',
+                                            background: filterType === type ? 'var(--primary)' : 'transparent',
+                                            color: filterType === type ? 'white' : 'var(--text-secondary)',
+                                            fontSize: '0.8rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s',
+                                            textTransform: 'capitalize'
+                                        }}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

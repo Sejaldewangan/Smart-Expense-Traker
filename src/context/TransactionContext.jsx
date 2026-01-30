@@ -4,7 +4,8 @@ import React, { createContext, useReducer, useEffect } from 'react';
 const initialState = {
     transactions: JSON.parse(localStorage.getItem('transactions')) || [],
     currency: localStorage.getItem('currency') || '$',
-    theme: localStorage.getItem('theme') || 'dark'
+    theme: localStorage.getItem('theme') || 'dark',
+    budget: Number(localStorage.getItem('budget')) || 5000
 };
 
 // Create context
@@ -40,10 +41,20 @@ const AppReducer = (state, action) => {
                 ...state,
                 currency: action.payload
             };
+        case 'SET_BUDGET':
+            return {
+                ...state,
+                budget: action.payload
+            };
         case 'TOGGLE_THEME':
             return {
                 ...state,
                 theme: state.theme === 'dark' ? 'light' : 'dark'
+            };
+        case 'CLEAR_DATA':
+            return {
+                ...initialState,
+                transactions: [],
             };
         default:
             return state;
@@ -62,6 +73,10 @@ export const TransactionProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('currency', state.currency);
     }, [state.currency]);
+
+    useEffect(() => {
+        localStorage.setItem('budget', state.budget);
+    }, [state.budget]);
 
     useEffect(() => {
         localStorage.setItem('theme', state.theme);
@@ -88,8 +103,16 @@ export const TransactionProvider = ({ children }) => {
         dispatch({ type: 'SET_CURRENCY', payload: currency });
     }
 
+    function setBudget(budget) {
+        dispatch({ type: 'SET_BUDGET', payload: budget });
+    }
+
     function toggleTheme() {
         dispatch({ type: 'TOGGLE_THEME' });
+    }
+
+    function clearData() {
+        dispatch({ type: 'CLEAR_DATA' });
     }
 
     return (
@@ -97,12 +120,15 @@ export const TransactionProvider = ({ children }) => {
             transactions: state.transactions,
             currency: state.currency,
             theme: state.theme,
+            budget: state.budget,
             deleteTransaction,
             deleteMultipleTransactions,
             addTransaction,
             updateTransaction,
             setCurrency,
-            toggleTheme
+            setBudget,
+            toggleTheme,
+            clearData
         }}>
             {children}
         </TransactionContext.Provider>

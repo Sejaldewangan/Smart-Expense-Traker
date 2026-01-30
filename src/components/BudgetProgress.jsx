@@ -4,10 +4,10 @@ import { Card } from './UIComponents';
 import { formatCurrency } from '../utils/formatters';
 
 const BudgetProgress = () => {
-    const { transactions, currency } = useContext(TransactionContext);
+    const { transactions, currency, budget } = useContext(TransactionContext);
 
-    // Mock Budget
-    const monthlyBudget = 5000;
+    // Use budget from context
+    const monthlyBudget = budget;
     const totalExpenses = transactions
         .filter(t => t.type === 'expense')
         .reduce((acc, t) => acc + Number(t.amount), 0);

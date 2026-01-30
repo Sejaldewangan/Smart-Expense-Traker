@@ -51,11 +51,30 @@ const AnalyticsCharts = () => {
     // Calculate data for Area Chart
     const trendData = isDemo
         ? DEMO_TREND_DATA
-        : [...transactions].reverse().map((t) => ({
-            name: t.text,
-            amount: Number(t.amount),
-            type: t.type
-        })).slice(0, 7);
+        : (() => {
+            const dailyData = {};
+            // Get last 7 days including today
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                dailyData[dateStr] = 0;
+            }
+
+            transactions.forEach(t => {
+                const dateStr = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                if (dailyData.hasOwnProperty(dateStr)) {
+                    if (t.type === 'expense') {
+                        dailyData[dateStr] += Number(t.amount);
+                    }
+                }
+            });
+
+            return Object.keys(dailyData).map(date => ({
+                name: date,
+                amount: dailyData[date]
+            }));
+        })();
 
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
@@ -140,7 +159,13 @@ const AnalyticsCharts = () => {
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" vertical={false} />
-                            <XAxis dataKey="name" hide />
+                            <XAxis
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
+                                minTickGap={10}
+                            />
                             <YAxis hide />
                             <RechartsTooltip content={<CustomTooltip />} />
                             <Area
