@@ -7,6 +7,8 @@ import AnalyticsCharts from './AnalyticsCharts';
 import { Card } from './UIComponents';
 import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react';
 
+import BudgetProgress from './BudgetProgress';
+
 const Dashboard = () => {
     const { transactions, currency } = useContext(TransactionContext);
 
@@ -22,8 +24,14 @@ const Dashboard = () => {
         .reduce((acc, item) => (acc += Number(item.amount)), 0);
 
     return (
-        <div className="grid-dashboard animate-fade-in">
-            {/* Left Column: Form & Summary */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }} className="animate-fade-in">
+            {/* Left Column: Analytics & List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <AnalyticsCharts />
+                <TransactionList />
+            </div>
+
+            {/* Right Column: Balance, Budget & Form */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {/* Balance Card */}
                 <div style={{
@@ -59,13 +67,8 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                <BudgetProgress />
                 <ExpenseForm />
-            </div>
-
-            {/* Right Column: Analytics & List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <AnalyticsCharts />
-                <TransactionList />
             </div>
         </div>
     );

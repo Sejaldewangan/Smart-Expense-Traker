@@ -1,30 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
     LayoutDashboard,
     ArrowLeftRight,
     PieChart,
-    Target,
     Settings,
     HelpCircle,
-    Wallet
+    Wallet,
+    Sun,
+    Moon
 } from 'lucide-react';
+import { TransactionContext } from '../context/TransactionContext';
 
-const Sidebar = () => {
+const Sidebar = ({ activeView, setActiveView }) => {
+    const { theme, toggleTheme } = useContext(TransactionContext);
     const menuItems = [
-        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', active: true },
-        { icon: <ArrowLeftRight size={20} />, label: 'Transactions' },
-        { icon: <PieChart size={20} />, label: 'Analytics' },
-        { icon: <Target size={20} />, label: 'Budgets' },
+        { id: 'dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+        { id: 'transactions', icon: <ArrowLeftRight size={20} />, label: 'Transactions' },
+        { id: 'analytics', icon: <PieChart size={20} />, label: 'Analytics' },
     ];
 
     const secondaryItems = [
-        { icon: <Settings size={20} />, label: 'Settings' },
-        { icon: <HelpCircle size={20} />, label: 'Help' },
+        { id: 'settings', icon: <Settings size={20} />, label: 'Settings' },
+        { id: 'help', icon: <HelpCircle size={20} />, label: 'Help' },
     ];
 
     return (
         <aside className="sidebar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+            <div
+                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', cursor: 'pointer' }}
+                onClick={() => setActiveView('dashboard')}
+            >
                 <div style={{
                     width: '40px',
                     height: '40px',
@@ -43,9 +48,10 @@ const Sidebar = () => {
             </div>
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                {menuItems.map((item, index) => (
+                {menuItems.map((item) => (
                     <div
-                        key={index}
+                        key={item.id}
+                        onClick={() => setActiveView(item.id)}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -53,9 +59,9 @@ const Sidebar = () => {
                             padding: '0.75rem 1rem',
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            background: item.active ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                            color: item.active ? 'var(--primary)' : 'var(--text-secondary)',
-                            fontWeight: item.active ? '600' : '400',
+                            background: activeView === item.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                            color: activeView === item.id ? 'var(--primary)' : 'var(--text-secondary)',
+                            fontWeight: activeView === item.id ? '600' : '400',
                             transition: 'all 0.2s'
                         }}
                         className="sidebar-item"
@@ -67,9 +73,10 @@ const Sidebar = () => {
             </nav>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1.5rem' }}>
-                {secondaryItems.map((item, index) => (
+                {secondaryItems.map((item) => (
                     <div
-                        key={index}
+                        key={item.id}
+                        onClick={() => setActiveView(item.id)}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -77,7 +84,8 @@ const Sidebar = () => {
                             padding: '0.75rem 1rem',
                             borderRadius: '12px',
                             cursor: 'pointer',
-                            color: 'var(--text-secondary)',
+                            background: activeView === item.id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                            color: activeView === item.id ? 'var(--primary)' : 'var(--text-secondary)',
                             transition: 'all 0.2s'
                         }}
                         className="sidebar-item"

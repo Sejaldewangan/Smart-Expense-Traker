@@ -1,12 +1,12 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { TransactionContext } from '../context/TransactionContext';
 import { formatCurrency } from '../utils/formatters';
-import { Card, Button, Input } from './UIComponents';
+import { Card, Button, Input, Select } from './UIComponents';
 import {
     Trash2, TrendingUp, TrendingDown, Search, Filter,
     CheckSquare, Square, XCircle, Utensils, Car, Zap,
     Play, ShoppingBag, HeartPulse, Package, Wallet,
-    Briefcase, MoreHorizontal, Inbox
+    Briefcase, MoreHorizontal, Inbox, Edit2, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -27,10 +27,17 @@ const getCategoryIcon = (category) => {
 };
 
 const TransactionList = () => {
-    const { transactions, deleteTransaction, deleteMultipleTransactions, currency } = useContext(TransactionContext);
+    const { transactions, deleteTransaction, deleteMultipleTransactions, updateTransaction, currency } = useContext(TransactionContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
     const [selectedIds, setSelectedIds] = useState([]);
+
+    // Edit State
+    const [editingTransaction, setEditingTransaction] = useState(null);
+    const [editText, setEditText] = useState('');
+    const [editAmount, setEditAmount] = useState('');
+    const [editCategory, setEditCategory] = useState('');
+    const [editType, setEditType] = useState('expense');
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => {
@@ -59,42 +66,135 @@ const TransactionList = () => {
         toast.success('Transaction deleted');
     };
 
+    const handleEditClick = (transaction) => {
+        setEditingTransaction(transaction);
+        setEditText(transaction.text);
+        setEditAmount(transaction.amount);
+        setEditCategory(transaction.category);
+        setEditType(transaction.type);
+    };
+
+    const handleUpdate = (e) => {
+        e.preventDefault();
+        const updated = {
+            ...editingTransaction,
+            text: editText,
+            amount: +editAmount,
+            category: editCategory,
+            type: editType
+        };
+        updateTransaction(updated);
+        toast.success('Transaction updated!');
+        setEditingTransaction(null);
+    };
+
     if (transactions.length === 0) {
         return (
-            <Card className="animate-fade-in">
+            <Card className="animate-fade-in" style={{ position: 'relative' }}>
+                <div className="card-header" style={{ marginBottom: '1.5rem' }}>
+                    <h3 style={{ margin: 0 }}>History</h3>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="glass-panel" style={{ padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.5 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div className="skeleton" style={{ width: '18px', height: '18px' }}></div>
+                                <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '12px' }}></div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <div className="skeleton" style={{ width: '120px', height: '1rem' }}></div>
+                                    <div className="skeleton" style={{ width: '80px', height: '0.75rem' }}></div>
+                                </div>
+                            </div>
+                            <div className="skeleton" style={{ width: '60px', height: '1.25rem' }}></div>
+                        </div>
+                    ))}
+                </div>
+
                 <div style={{
-                    textAlign: 'center',
-                    padding: '3rem 1rem',
-                    color: 'var(--text-secondary)',
+                    position: 'absolute',
+                    inset: 0,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '1rem'
+                    justifyContent: 'center',
+                    background: 'rgba(15, 23, 42, 0.4)',
+                    backdropFilter: 'blur(1px)',
+                    borderRadius: 'var(--radius-lg)',
+                    zIndex: 10
                 }}>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        background: 'var(--glass-bg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--primary)',
-                        opacity: 0.5
-                    }}>
-                        <Inbox size={40} />
-                    </div>
-                    <div>
-                        <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>No transactions yet</h3>
-                        <p style={{ margin: 0, fontSize: '0.9rem' }}>Start tracking your expenses by adding one above!</p>
-                    </div>
+                    <Inbox size={48} style={{ color: 'var(--primary)', marginBottom: '1rem', opacity: 0.8 }} />
+                    <h3 style={{ margin: '0 0 0.5rem 0', color: 'white' }}>No data yet</h3>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Your transactions will appear here</p>
                 </div>
             </Card>
         );
     }
 
     return (
-        <Card className="animate-fade-in">
+        <Card className="animate-fade-in" style={{ position: 'relative' }}>
+            {/* Edit Modal Overlay */}
+            {editingTransaction && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.7)',
+                    backdropFilter: 'blur(8px)',
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem'
+                }}>
+                    <Card style={{ maxWidth: '450px', width: '100%', position: 'relative' }}>
+                        <button
+                            onClick={() => setEditingTransaction(null)}
+                            style={{ position: 'absolute', right: '1.5rem', top: '1.5rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                        >
+                            <X size={24} />
+                        </button>
+                        <h2 style={{ marginBottom: '2rem' }}>Edit Transaction</h2>
+                        <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Description</label>
+                                <Input value={editText} onChange={(e) => setEditText(e.target.value)} required />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Amount</label>
+                                    <Input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Type</label>
+                                    <Select value={editType} onChange={(e) => setEditType(e.target.value)}>
+                                        <option value="expense">Expense</option>
+                                        <option value="income">Income</option>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Category</label>
+                                <Select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                                    <option value="Food">Food</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Investment">Investment</option>
+                                    <option value="Other">Other</option>
+                                </Select>
+                            </div>
+                            <Button type="submit" variant="primary" style={{ marginTop: '1rem', width: '100%' }}>
+                                Update Transaction
+                            </Button>
+                        </form>
+                    </Card>
+                </div>
+            )}
+
             <div className="card-header" style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
                     <h3 style={{ margin: 0 }}>History</h3>
@@ -147,7 +247,7 @@ const TransactionList = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeght: '500px', overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
                 {filteredTransactions.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                         <Search size={32} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
@@ -187,17 +287,31 @@ const TransactionList = () => {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <span style={{
                                     fontWeight: '600',
                                     fontSize: '1rem',
+                                    marginRight: '0.5rem',
                                     color: transaction.type === 'income' ? 'var(--success)' : 'var(--text-primary)'
                                 }}>
                                     {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, currency)}
                                 </span>
-                                <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDelete(transaction.id); }} style={{ padding: '0.4rem', background: 'transparent', color: 'var(--text-secondary)' }}>
-                                    <Trash2 size={16} />
-                                </Button>
+                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={(e) => { e.stopPropagation(); handleEditClick(transaction); }}
+                                        style={{ padding: '0.4rem' }}
+                                    >
+                                        <Edit2 size={16} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(transaction.id); }}
+                                        style={{ padding: '0.4rem' }}
+                                    >
+                                        <Trash2 size={16} />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     ))

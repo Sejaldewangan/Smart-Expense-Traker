@@ -9,7 +9,13 @@ export const Card = ({ children, className = '' }) => {
 };
 
 export const Button = ({ children, onClick, variant = 'primary', type = 'button', className = '' }) => {
-    const baseClass = variant === 'danger' ? 'btn-danger' : 'btn-primary';
+    const variantClasses = {
+        primary: 'btn-primary',
+        danger: 'btn-danger',
+        secondary: 'btn-secondary',
+        ghost: 'btn-ghost'
+    };
+    const baseClass = variantClasses[variant] || 'btn-primary';
     return (
         <button type={type} onClick={onClick} className={`${baseClass} ${className}`}>
             {children}
@@ -26,12 +32,13 @@ export const Input = ({ label, ...props }) => {
     );
 };
 
-export const Select = ({ label, options, ...props }) => {
+export const Select = ({ label, options, children, ...props }) => {
     return (
         <div style={{ marginBottom: '1rem' }}>
             {label && <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{label}</label>}
             <select className="glass-input transition-all" {...props}>
-                {options.map(opt => (
+                {children}
+                {!children && options && options.map(opt => (
                     <option key={opt.value} value={opt.value} style={{ background: 'var(--bg-card)', color: 'white' }}>
                         {opt.label}
                     </option>

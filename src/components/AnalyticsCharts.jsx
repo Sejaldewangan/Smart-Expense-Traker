@@ -147,9 +147,11 @@ const AnalyticsCharts = () => {
                                 type="monotone"
                                 dataKey="amount"
                                 stroke="var(--primary)"
-                                strokeWidth={3}
+                                strokeWidth={4}
                                 fillOpacity={1}
                                 fill="url(#colorAmount)"
+                                dot={{ fill: 'var(--primary)', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                                activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--primary)' }}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
