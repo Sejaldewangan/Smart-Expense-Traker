@@ -3,6 +3,7 @@ import { TransactionContext } from '../context/TransactionContext';
 import { Card, Button, Input, Select } from './UIComponents';
 import { PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '../utils/cn';
 
 const ExpenseForm = () => {
     const [text, setText] = useState('');
@@ -53,54 +54,77 @@ const ExpenseForm = () => {
     ];
 
     return (
-        <Card className="animate-fade-in">
-            <div className="card-header">
-                <h3>Add New Transaction</h3>
+        <Card>
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold">New Transaction</h3>
             </div>
-            <form onSubmit={onSubmit}>
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                    <Button
+
+            <form onSubmit={onSubmit} className="space-y-5">
+                <div className="flex bg-muted rounded-xl p-1 gap-1">
+                    <button
+                        type="button"
                         onClick={() => setType('expense')}
-                        variant={type === 'expense' ? 'primary' : 'danger'} // Creative use of variant for toggle state visual
-                        className={type !== 'expense' ? 'opacity-50' : ''}
-                        style={{ flex: 1, opacity: type === 'expense' ? 1 : 0.5 }}
+                        className={cn(
+                            "flex-1 py-2 px-4 rounded-lg text-xs font-bold transition-all",
+                            type === 'expense'
+                                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                                : "text-muted-foreground hover:text-foreground"
+                        )}
                     >
                         Expense
-                    </Button>
-                    <Button
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => setType('income')}
-                        variant={type === 'income' ? 'primary' : 'danger'}
-                        style={{ flex: 1, backgroundColor: type === 'income' ? 'var(--success)' : '', opacity: type === 'income' ? 1 : 0.5 }}
+                        className={cn(
+                            "flex-1 py-2 px-4 rounded-lg text-xs font-bold transition-all",
+                            type === 'income'
+                                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                                : "text-muted-foreground hover:text-foreground"
+                        )}
                     >
                         Income
-                    </Button>
+                    </button>
                 </div>
 
-                <Input
-                    label="Description"
-                    type="text"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="What was this for?"
-                />
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Description</label>
+                    <Input
+                        type="text"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="What was this for?"
+                        className="mb-0"
+                    />
+                </div>
 
-                <Input
-                    label="Amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.00"
-                />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Amount</label>
+                        <Input
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="mb-0"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Category</label>
+                        <Select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="mb-0"
+                        >
+                            {(type === 'expense' ? expenseCategories : incomeCategories).map(opt => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </Select>
+                    </div>
+                </div>
 
-                <Select
-                    label="Category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    options={type === 'expense' ? expenseCategories : incomeCategories}
-                />
-
-                <Button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>
-                    <PlusCircle size={18} />
+                <Button type="submit" className="w-full h-12 rounded-xl text-base">
+                    <PlusCircle size={18} className="mr-2" />
                     Add Transaction
                 </Button>
             </form>

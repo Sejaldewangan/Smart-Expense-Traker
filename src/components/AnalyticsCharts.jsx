@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { TransactionContext } from '../context/TransactionContext';
 import { Card } from './UIComponents';
+import { cn } from '../utils/cn';
 
 const COLORS = ['#6366f1', '#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
 
@@ -79,17 +80,10 @@ const AnalyticsCharts = () => {
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             return (
-                <div style={{
-                    background: 'rgba(23, 23, 37, 0.9)',
-                    backdropFilter: 'blur(8px)',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--glass-border)',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                }}>
-                    <p style={{ color: '#fff', fontWeight: 'bold', margin: '0 0 4px 0', fontSize: '0.9rem' }}>{payload[0].name}</p>
-                    <p style={{ color: 'var(--primary)', fontWeight: '600', margin: 0 }}>
-                        {typeof payload[0].value === 'number' ? `${currency}${payload[0].value.toFixed(2)}` : payload[0].value}
+                <div className="bg-card/90 backdrop-blur-xl border border-border/50 p-4 rounded-2xl shadow-2xl">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{payload[0].name}</p>
+                    <p className="text-lg font-bold text-primary">
+                        {typeof payload[0].value === 'number' ? `${currency}${payload[0].value.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : payload[0].value}
                     </p>
                 </div>
             );
@@ -98,30 +92,18 @@ const AnalyticsCharts = () => {
     };
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', position: 'relative' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
             {isDemo && (
-                <div style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    right: '1rem',
-                    zIndex: 10,
-                    background: 'var(--primary)',
-                    color: 'white',
-                    padding: '4px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.75rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
-                }}>
+                <div className="absolute -top-3 -right-3 z-10 bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-xs font-bold shadow-lg shadow-primary/20 animate-bounce">
                     Demo Mode
                 </div>
             )}
 
-            <Card className="animate-fade-in" style={{ opacity: isDemo ? 0.7 : 1 }}>
-                <div className="card-header">
-                    <h3>Expense Breakdown</h3>
+            <Card className={cn(isDemo && "opacity-60 grayscale-[0.5]")}>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold">Expense Breakdown</h3>
                 </div>
-                <div style={{ height: '300px' }}>
+                <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -130,40 +112,49 @@ const AnalyticsCharts = () => {
                                 cy="50%"
                                 innerRadius={70}
                                 outerRadius={90}
-                                paddingAngle={5}
+                                paddingAngle={8}
                                 dataKey="value"
                                 stroke="none"
                             >
                                 {pieData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={COLORS[index % COLORS.length]}
+                                        className="outline-none hover:opacity-80 transition-opacity"
+                                    />
                                 ))}
                             </Pie>
                             <RechartsTooltip content={<CustomTooltip />} />
-                            <Legend verticalAlign="bottom" height={36} />
+                            <Legend
+                                verticalAlign="bottom"
+                                height={36}
+                                iconType="circle"
+                                formatter={(value) => <span className="text-xs font-medium text-muted-foreground mr-4">{value}</span>}
+                            />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
             </Card>
 
-            <Card className="animate-fade-in" style={{ opacity: isDemo ? 0.7 : 1 }}>
-                <div className="card-header">
-                    <h3>Activity Trend</h3>
+            <Card className={cn(isDemo && "opacity-60 grayscale-[0.5]")}>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold">Activity Trend</h3>
                 </div>
-                <div style={{ height: '300px' }}>
+                <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={trendData}>
+                        <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="var(--primary-hex)" stopOpacity={0.4} />
+                                    <stop offset="95%" stopColor="var(--primary-hex)" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis
                                 dataKey="name"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: 'var(--text-secondary)', fontSize: 10 }}
+                                tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }}
                                 minTickGap={10}
                             />
                             <YAxis hide />
@@ -171,12 +162,12 @@ const AnalyticsCharts = () => {
                             <Area
                                 type="monotone"
                                 dataKey="amount"
-                                stroke="var(--primary)"
+                                stroke="var(--primary-hex)"
                                 strokeWidth={4}
                                 fillOpacity={1}
                                 fill="url(#colorAmount)"
-                                dot={{ fill: 'var(--primary)', strokeWidth: 2, r: 4, stroke: '#fff' }}
-                                activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--primary)' }}
+                                dot={{ fill: 'var(--primary-hex)', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                                activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--primary-hex)' }}
                             />
                         </AreaChart>
                     </ResponsiveContainer>

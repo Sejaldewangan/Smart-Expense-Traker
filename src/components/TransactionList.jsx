@@ -26,6 +26,24 @@ const getCategoryIcon = (category) => {
     }
 };
 
+import { motion, AnimatePresence } from 'framer-motion';
+
+const listVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.05
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 20, transition: { duration: 0.2 } }
+};
+
 const TransactionList = () => {
     const { transactions, deleteTransaction, deleteMultipleTransactions, updateTransaction, currency } = useContext(TransactionContext);
     const [searchTerm, setSearchTerm] = useState('');
@@ -117,242 +135,233 @@ const TransactionList = () => {
 
     if (transactions.length === 0) {
         return (
-            <Card className="animate-fade-in" style={{ position: 'relative' }}>
-                <div className="card-header" style={{ marginBottom: '1.5rem' }}>
-                    <h3 style={{ margin: 0 }}>History</h3>
+            <Card className="relative overflow-hidden min-h-[400px]">
+                <div className="card-header pb-4 border-b border-border/50">
+                    <h3 className="text-lg font-bold">History</h3>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div className="flex flex-col gap-3 mt-4">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="glass-panel" style={{ padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.5 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div className="skeleton" style={{ width: '18px', height: '18px' }}></div>
-                                <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '12px' }}></div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    <div className="skeleton" style={{ width: '120px', height: '1rem' }}></div>
-                                    <div className="skeleton" style={{ width: '80px', height: '0.75rem' }}></div>
+                        <div key={i} className="glass-panel p-4 flex justify-between items-center opacity-30">
+                            <div className="flex items-center gap-4">
+                                <div className="skeleton w-5 h-5"></div>
+                                <div className="skeleton w-10 h-10 rounded-xl"></div>
+                                <div className="space-y-2">
+                                    <div className="skeleton w-32 h-4"></div>
+                                    <div className="skeleton w-20 h-3"></div>
                                 </div>
                             </div>
-                            <div className="skeleton" style={{ width: '60px', height: '1.25rem' }}></div>
+                            <div className="skeleton w-16 h-6"></div>
                         </div>
                     ))}
                 </div>
 
-                <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(15, 23, 42, 0.4)',
-                    backdropFilter: 'blur(1px)',
-                    borderRadius: 'var(--radius-lg)',
-                    zIndex: 10
-                }}>
-                    <Inbox size={48} style={{ color: 'var(--primary)', marginBottom: '1rem', opacity: 0.8 }} />
-                    <h3 style={{ margin: '0 0 0.5rem 0', color: 'white' }}>No data yet</h3>
-                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Your transactions will appear here</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-[2px] z-10">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", damping: 15 }}
+                    >
+                        <Inbox size={64} className="text-primary/40 mb-4 mx-auto" strokeWidth={1.5} />
+                    </motion.div>
+                    <h3 className="text-xl font-bold mb-1">No data yet</h3>
+                    <p className="text-muted-foreground">Your transactions will appear here</p>
                 </div>
             </Card>
         );
     }
 
     return (
-        <Card className="animate-fade-in" style={{ position: 'relative' }}>
+        <Card className="relative">
             {/* Edit Modal Overlay */}
-            {editingTransaction && (
-                <div style={{
-                    position: 'fixed',
-                    inset: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    backdropFilter: 'blur(8px)',
-                    zIndex: 1000,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2rem'
-                }}>
-                    <Card style={{ maxWidth: '450px', width: '100%', position: 'relative' }}>
-                        <button
-                            onClick={() => setEditingTransaction(null)}
-                            style={{ position: 'absolute', right: '1.5rem', top: '1.5rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+            <AnimatePresence>
+                {editingTransaction && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
                         >
-                            <X size={24} />
-                        </button>
-                        <h2 style={{ marginBottom: '2rem' }}>Edit Transaction</h2>
-                        <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Description</label>
-                                <Input value={editText} onChange={(e) => setEditText(e.target.value)} required />
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Amount</label>
-                                    <Input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required />
-                                </div>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Type</label>
-                                    <Select value={editType} onChange={(e) => setEditType(e.target.value)}>
-                                        <option value="expense">Expense</option>
-                                        <option value="income">Income</option>
-                                    </Select>
-                                </div>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Category</label>
-                                <Select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
-                                    <option value="Food">Food</option>
-                                    <option value="Transport">Transport</option>
-                                    <option value="Shopping">Shopping</option>
-                                    <option value="Entertainment">Entertainment</option>
-                                    <option value="Utilities">Utilities</option>
-                                    <option value="Health">Health</option>
-                                    <option value="Salary">Salary</option>
-                                    <option value="Freelance">Freelance</option>
-                                    <option value="Investment">Investment</option>
-                                    <option value="Other">Other</option>
-                                </Select>
-                            </div>
-                            <Button type="submit" variant="primary" style={{ marginTop: '1rem', width: '100%' }}>
-                                Update Transaction
-                            </Button>
-                        </form>
-                    </Card>
+                            <Card className="max-w-md w-full relative">
+                                <button
+                                    onClick={() => setEditingTransaction(null)}
+                                    className="absolute right-4 top-4 text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                                <h2 className="text-xl font-bold mb-6">Edit Transaction</h2>
+                                <form onSubmit={handleUpdate} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-muted-foreground">Description</label>
+                                        <Input value={editText} onChange={(e) => setEditText(e.target.value)} required />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-muted-foreground">Amount</label>
+                                            <Input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} required />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-muted-foreground">Type</label>
+                                            <Select value={editType} onChange={(e) => setEditType(e.target.value)}>
+                                                <option value="expense">Expense</option>
+                                                <option value="income">Income</option>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-muted-foreground">Category</label>
+                                        <Select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                                            {['Food', 'Transport', 'Shopping', 'Entertainment', 'Utilities', 'Health', 'Salary', 'Freelance', 'Investment', 'Other'].map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                    <Button type="submit" variant="primary" className="w-full mt-2">
+                                        Update Transaction
+                                    </Button>
+                                </form>
+                            </Card>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div className="card-header items-start lg:items-center flex-col lg:flex-row gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-bold m-0">History</h3>
+                    <div className="flex bg-muted rounded-lg p-1">
+                        {['all', 'income', 'expense'].map(type => (
+                            <button
+                                key={type}
+                                onClick={() => setFilterType(type)}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${filterType === type
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                    } capitalize`}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            )}
 
-            <div className="card-header" style={{ marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h3 style={{ margin: 0 }}>History</h3>
-
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        {selectedIds.length > 0 && (
-                            <Button
-                                variant="danger"
-                                onClick={handleBulkDelete}
-                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
-                            >
-                                <Trash2 size={14} />
-                                Delete ({selectedIds.length})
-                            </Button>
-                        )}
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <Button
-                                variant="ghost"
-                                onClick={exportToCSV}
-                                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-                                title="Export to CSV"
-                            >
-                                <Download size={14} />
-                                <span>Export</span>
-                            </Button>
-                            <div style={{ display: 'flex', background: 'var(--glass-bg)', borderRadius: '8px', padding: '2px' }}>
-                                {['all', 'income', 'expense'].map(type => (
-                                    <button
-                                        key={type}
-                                        onClick={() => setFilterType(type)}
-                                        style={{
-                                            padding: '4px 12px',
-                                            borderRadius: '6px',
-                                            border: 'none',
-                                            background: filterType === type ? 'var(--primary)' : 'transparent',
-                                            color: filterType === type ? 'white' : 'var(--text-secondary)',
-                                            fontSize: '0.8rem',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            textTransform: 'capitalize'
-                                        }}
-                                    >
-                                        {type}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                <div className="flex items-center gap-2 w-full lg:w-auto">
+                    {selectedIds.length > 0 && (
+                        <Button
+                            variant="danger"
+                            onClick={handleBulkDelete}
+                            className="h-9 px-3 text-xs"
+                        >
+                            <Trash2 size={14} className="mr-2" />
+                            Delete ({selectedIds.length})
+                        </Button>
+                    )}
+                    <Button
+                        variant="ghost"
+                        onClick={exportToCSV}
+                        className="h-9 px-3 text-xs flex items-center gap-2"
+                        title="Export to CSV"
+                    >
+                        <Download size={14} />
+                        <span className="hidden sm:inline">Export</span>
+                    </Button>
+                    <div className="relative flex-1 lg:flex-none lg:w-64">
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 h-9 mb-0"
+                        />
                     </div>
                 </div>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-                <div style={{ position: 'relative' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                    <Input
-                        placeholder="Search transactions..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ paddingLeft: '40px', marginBottom: 0 }}
-                    />
-                </div>
-            </div>
-
-            <div className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="custom-scrollbar max-h-[500px] overflow-y-auto pr-2">
                 {filteredTransactions.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
-                        <Search size={32} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
-                        <p>No results found for "{searchTerm}"</p>
+                    <div className="text-center py-12 text-muted-foreground">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                        >
+                            <Search size={40} className="mx-auto opacity-20 mb-3" strokeWidth={1.5} />
+                            <p className="text-sm">No results found for "{searchTerm}"</p>
+                        </motion.div>
                     </div>
                 ) : (
-                    filteredTransactions.map(transaction => (
-                        <div key={transaction.id} className="glass-panel" style={{
-                            padding: '0.75rem 1rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            borderLeft: `4px solid ${transaction.type === 'income' ? 'var(--success)' : 'var(--danger)'}`,
-                            transition: 'transform 0.2s, background 0.2s',
-                            cursor: 'pointer'
-                        }} onClick={() => toggleSelection(transaction.id)}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div onClick={(e) => { e.stopPropagation(); toggleSelection(transaction.id); }} style={{ color: selectedIds.includes(transaction.id) ? 'var(--primary)' : 'var(--text-secondary)', cursor: 'pointer' }}>
-                                    {selectedIds.includes(transaction.id) ? <CheckSquare size={18} /> : <Square size={18} />}
-                                </div>
-                                <div style={{
-                                    padding: '10px',
-                                    borderRadius: '12px',
-                                    background: transaction.type === 'income' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                                    color: transaction.type === 'income' ? 'var(--success)' : 'var(--danger)',
-                                    display: 'flex'
-                                }}>
-                                    {getCategoryIcon(transaction.category)}
-                                </div>
-                                <div>
-                                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{transaction.text}</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{transaction.category}</span>
-                                        <span style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'var(--text-secondary)', opacity: 0.5 }}></span>
-                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(transaction.date).toLocaleDateString()}</span>
+                    <motion.div
+                        variants={listVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="flex flex-col gap-3"
+                    >
+                        <AnimatePresence mode="popLayout">
+                            {filteredTransactions.map(transaction => (
+                                <motion.div
+                                    key={transaction.id}
+                                    variants={itemVariants}
+                                    layout
+                                    exit="exit"
+                                    className={`glass-panel p-3 lg:p-4 flex justify-between items-center group cursor-pointer transition-colors border-l-4 ${transaction.type === 'income' ? 'border-emerald-500' : 'border-rose-500'
+                                        } ${selectedIds.includes(transaction.id) ? 'bg-primary/5 border-primary' : 'hover:bg-white/5'}`}
+                                    onClick={() => toggleSelection(transaction.id)}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div
+                                            onClick={(e) => { e.stopPropagation(); toggleSelection(transaction.id); }}
+                                            className={`transition-colors ${selectedIds.includes(transaction.id) ? 'text-primary' : 'text-muted-foreground'}`}
+                                        >
+                                            {selectedIds.includes(transaction.id) ? <CheckSquare size={18} /> : <Square size={18} />}
+                                        </div>
+                                        <div className={`p-2.5 rounded-xl flex items-center justify-center ${transaction.type === 'income'
+                                                ? 'bg-emerald-500/10 text-emerald-500'
+                                                : 'bg-rose-500/10 text-rose-500'
+                                            }`}>
+                                            {getCategoryIcon(transaction.category)}
+                                        </div>
+                                        <div>
+                                            <h4 className="m-0 text-sm font-medium">{transaction.text}</h4>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <span className="text-[10px] lg:text-xs text-muted-foreground font-medium uppercase tracking-wider">{transaction.category}</span>
+                                                <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
+                                                <span className="text-[10px] lg:text-xs text-muted-foreground">
+                                                    {new Date(transaction.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <span style={{
-                                    fontWeight: '600',
-                                    fontSize: '1rem',
-                                    marginRight: '0.5rem',
-                                    color: transaction.type === 'income' ? 'var(--success)' : 'var(--text-primary)'
-                                }}>
-                                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, currency)}
-                                </span>
-                                <div style={{ display: 'flex', gap: '0.25rem' }}>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={(e) => { e.stopPropagation(); handleEditClick(transaction); }}
-                                        style={{ padding: '0.4rem' }}
-                                    >
-                                        <Edit2 size={16} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={(e) => { e.stopPropagation(); handleDelete(transaction.id); }}
-                                        style={{ padding: '0.4rem' }}
-                                    >
-                                        <Trash2 size={16} />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))
+                                    <div className="flex items-center gap-2 lg:gap-4">
+                                        <span className={`text-sm lg:text-base font-bold tabular-nums ${transaction.type === 'income' ? 'text-emerald-500' : 'text-foreground'
+                                            }`}>
+                                            {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, currency)}
+                                        </span>
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="ghost"
+                                                onClick={(e) => { e.stopPropagation(); handleEditClick(transaction); }}
+                                                className="p-1.5 h-8 w-8 rounded-lg hover:bg-background"
+                                            >
+                                                <Edit2 size={14} className="text-sky-400" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                onClick={(e) => { e.stopPropagation(); handleDelete(transaction.id); }}
+                                                className="p-1.5 h-8 w-8 rounded-lg hover:bg-rose-500/10"
+                                            >
+                                                <Trash2 size={14} className="text-rose-400" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
                 )}
             </div>
         </Card>

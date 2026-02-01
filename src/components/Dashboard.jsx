@@ -9,6 +9,23 @@ import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react';
 
 import BudgetProgress from './BudgetProgress';
 
+import { motion } from 'framer-motion';
+
+const container = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1
+        }
+    }
+};
+
+const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+};
+
 const Dashboard = () => {
     const { transactions, currency } = useContext(TransactionContext);
 
@@ -24,53 +41,63 @@ const Dashboard = () => {
         .reduce((acc, item) => (acc += Number(item.amount)), 0);
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }} className="animate-fade-in">
+        <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-8"
+        >
             {/* Left Column: Analytics & List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <AnalyticsCharts />
-                <TransactionList />
+            <div className="flex flex-col gap-8 order-2 lg:order-1">
+                <motion.div variants={item}>
+                    <AnalyticsCharts />
+                </motion.div>
+                <motion.div variants={item}>
+                    <TransactionList />
+                </motion.div>
             </div>
 
             {/* Right Column: Balance, Budget & Form */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className="flex flex-col gap-8 order-1 lg:order-2">
                 {/* Balance Card */}
-                <div style={{
-                    background: 'linear-gradient(135deg, var(--primary), #818cf8)',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: '2rem',
-                    color: 'white',
-                    boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                <motion.div
+                    variants={item}
+                    className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-3xl p-8 text-white shadow-xl shadow-indigo-500/20"
+                >
+                    <div className="flex items-center gap-2 mb-2 opacity-90">
                         <DollarSign size={20} />
-                        <span style={{ fontWeight: 500 }}>Total Balance</span>
+                        <span className="font-medium">Total Balance</span>
                     </div>
-                    <h1 style={{ fontSize: '2.5rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white', background: 'none', WebkitTextFillColor: 'initial' }}>
+                    <h1 className="text-4xl font-bold mb-8 tracking-tight">
                         {formatCurrency(total, currency)}
                     </h1>
 
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                        <div style={{ flex: 1, background: 'rgba(255,255,255,0.15)', padding: '1rem', borderRadius: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                <ArrowUpCircle size={16} />
-                                <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Income</span>
+                    <div className="flex gap-4">
+                        <div className="flex-1 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                            <div className="flex items-center gap-2 mb-1">
+                                <ArrowUpCircle size={16} className="text-emerald-300" />
+                                <span className="text-xs opacity-80 uppercase tracking-wider font-semibold">Income</span>
                             </div>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(income, currency)}</span>
+                            <span className="text-lg font-bold">{formatCurrency(income, currency)}</span>
                         </div>
-                        <div style={{ flex: 1, background: 'rgba(0,0,0,0.15)', padding: '1rem', borderRadius: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                <ArrowDownCircle size={16} />
-                                <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Expenses</span>
+                        <div className="flex-1 bg-black/10 backdrop-blur-md p-4 rounded-2xl border border-white/5">
+                            <div className="flex items-center gap-2 mb-1">
+                                <ArrowDownCircle size={16} className="text-rose-300" />
+                                <span className="text-xs opacity-80 uppercase tracking-wider font-semibold">Expenses</span>
                             </div>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formatCurrency(expense, currency)}</span>
+                            <span className="text-lg font-bold">{formatCurrency(expense, currency)}</span>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                <BudgetProgress />
-                <ExpenseForm />
+                <motion.div variants={item}>
+                    <BudgetProgress />
+                </motion.div>
+                <motion.div variants={item}>
+                    <ExpenseForm />
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
