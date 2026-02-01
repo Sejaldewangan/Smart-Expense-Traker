@@ -4,6 +4,7 @@ import { TransactionContext } from '../context/TransactionContext';
 import { Select } from './UIComponents';
 
 import Sidebar from './Sidebar';
+import BottomNav from './BottomNav';
 
 const Layout = ({ children, activeView, setActiveView }) => {
     const { currency, setCurrency, theme } = useContext(TransactionContext);
@@ -17,6 +18,9 @@ const Layout = ({ children, activeView, setActiveView }) => {
             </div>
 
             <Sidebar activeView={activeView} setActiveView={setActiveView} />
+
+            {/* Bottom Navigation for Mobile */}
+            <BottomNav activeView={activeView} setActiveView={setActiveView} />
 
             <div className="flex flex-col flex-1 w-full relative z-10">
                 <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -49,7 +53,7 @@ const Layout = ({ children, activeView, setActiveView }) => {
                     </div>
                 </header>
 
-                <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+                <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full pb-32 lg:pb-8">
                     {children}
                 </main>
             </div>

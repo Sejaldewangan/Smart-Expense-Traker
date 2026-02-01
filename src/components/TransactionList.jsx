@@ -240,8 +240,8 @@ const TransactionList = () => {
                                 key={type}
                                 onClick={() => setFilterType(type)}
                                 className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${filterType === type
-                                        ? 'bg-background text-foreground shadow-sm'
-                                        : 'text-muted-foreground hover:text-foreground'
+                                    ? 'bg-background text-foreground shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground'
                                     } capitalize`}
                             >
                                 {type}
@@ -311,50 +311,50 @@ const TransactionList = () => {
                                         } ${selectedIds.includes(transaction.id) ? 'bg-primary/5 border-primary' : 'hover:bg-white/5'}`}
                                     onClick={() => toggleSelection(transaction.id)}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-3 lg:gap-4 overflow-hidden">
                                         <div
                                             onClick={(e) => { e.stopPropagation(); toggleSelection(transaction.id); }}
-                                            className={`transition-colors ${selectedIds.includes(transaction.id) ? 'text-primary' : 'text-muted-foreground'}`}
+                                            className={`transition-colors shrink-0 ${selectedIds.includes(transaction.id) ? 'text-primary' : 'text-muted-foreground'}`}
                                         >
                                             {selectedIds.includes(transaction.id) ? <CheckSquare size={18} /> : <Square size={18} />}
                                         </div>
-                                        <div className={`p-2.5 rounded-xl flex items-center justify-center ${transaction.type === 'income'
-                                                ? 'bg-emerald-500/10 text-emerald-500'
-                                                : 'bg-rose-500/10 text-rose-500'
+                                        <div className={`p-2.5 rounded-xl shrink-0 flex items-center justify-center ${transaction.type === 'income'
+                                            ? 'bg-emerald-500/10 text-emerald-500'
+                                            : 'bg-rose-500/10 text-rose-500'
                                             }`}>
                                             {getCategoryIcon(transaction.category)}
                                         </div>
-                                        <div>
-                                            <h4 className="m-0 text-sm font-medium">{transaction.text}</h4>
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="m-0 text-sm font-medium truncate">{transaction.text}</h4>
                                             <div className="flex items-center gap-2 mt-0.5">
                                                 <span className="text-[10px] lg:text-xs text-muted-foreground font-medium uppercase tracking-wider">{transaction.category}</span>
                                                 <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
-                                                <span className="text-[10px] lg:text-xs text-muted-foreground">
+                                                <span className="text-[10px] lg:text-xs text-muted-foreground whitespace-nowrap">
                                                     {new Date(transaction.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2 lg:gap-4">
+                                    <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
                                         <span className={`text-sm lg:text-base font-bold tabular-nums ${transaction.type === 'income' ? 'text-emerald-500' : 'text-foreground'
                                             }`}>
                                             {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount, currency)}
                                         </span>
-                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Button
                                                 variant="ghost"
                                                 onClick={(e) => { e.stopPropagation(); handleEditClick(transaction); }}
-                                                className="p-1.5 h-8 w-8 rounded-lg hover:bg-background"
+                                                className="p-1 h-7 w-7 rounded-lg hover:bg-background"
                                             >
-                                                <Edit2 size={14} className="text-sky-400" />
+                                                <Edit2 size={12} className="text-sky-400" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
                                                 onClick={(e) => { e.stopPropagation(); handleDelete(transaction.id); }}
-                                                className="p-1.5 h-8 w-8 rounded-lg hover:bg-rose-500/10"
+                                                className="p-1 h-7 w-7 rounded-lg hover:bg-rose-500/10"
                                             >
-                                                <Trash2 size={14} className="text-rose-400" />
+                                                <Trash2 size={12} className="text-rose-400" />
                                             </Button>
                                         </div>
                                     </div>
